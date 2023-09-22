@@ -28,16 +28,21 @@ to quickly create a Cobra application.`,
 		count, _ := cmd.Flags().GetInt("count")
 		offset, _ := cmd.Flags().GetInt("offset")
 		length, _ := cmd.Flags().GetInt("length")
+		transform, _ := cmd.Flags().GetBool("transform")
 
 		values, err := application.DownloadDiceValues(url, auth, count, offset)
 		if err != nil {
 			return err
 		}
 
+		if transform {
+			values = application.TransformValues(values)
+		}
+
 		formattedValues := application.FormatNumbers(values, length)
 
 		// Write the formatted values to a file.
-		
+
 		err = os.WriteFile(filePath, []byte(formattedValues), os.ModePerm)
 		if err != nil {
 			return err
@@ -62,6 +67,7 @@ func init() {
 	downloadCmd.Flags().IntP("count", "n", 32, "number of records to download")
 	downloadCmd.Flags().IntP("offset", "o", 0, "offset of records to download")
 	downloadCmd.Flags().IntP("length", "l", 16, "length of records per line")
+	downloadCmd.Flags().BoolP("transform", "t", false, "transform the data to match the original random number generator output")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
